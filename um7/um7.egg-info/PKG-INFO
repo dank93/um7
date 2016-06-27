@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: um7
+Version: 0.8
+Summary: Classes to interface with CH Robotics UM7 IMU
+Home-page: https://pypi.python.org/pypi/um7/0.8
+Author: Daniel Kurek
+Author-email: dkurek93@gmail.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
