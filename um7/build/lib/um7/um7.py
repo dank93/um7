@@ -129,6 +129,7 @@ class UM7(object):
         try:
             self.serial = serial.Serial(port, baudrate=baud, bytesize=8, parity='N', stopbits=1, timeout=0.1)  # Open serial device
             self.serial.flushInput()
+            time.sleep(1)
             self.serial.write('$$$')
             print 'Successfully connected to %s UM7!' % self.name
         except OSError:
@@ -444,4 +445,3 @@ dec2name_reg = {85: 'health',
                 113: 'yaw',
                 114: 'rollpitchrate',
                 115: 'yawrate'}
-
