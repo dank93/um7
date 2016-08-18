@@ -309,6 +309,8 @@ class UM7(object):
 
     def btstart(self):
         self.serial.write('F,1\n')
+        foundpacket, ~, ~, ~, ~ = readpacket()
+        return foundpacket
 
     def updatestate(self, sample):
         sample.update({'time': time.time() - self.t0})

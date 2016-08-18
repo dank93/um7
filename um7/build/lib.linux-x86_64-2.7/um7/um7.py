@@ -96,12 +96,8 @@ class UM7array(object):
 
     def checkbuffer(self, numbytes):
         for i in self.sensors:
-            try:
-                if i.serial.inWaiting() > numbytes:
-                    i.serial.flushInput()
-            except IOError:
-                print("IOError Checkbuffer")
-                throwaway = 0
+            if i.serial.inWaiting() > numbytes:
+                i.serial.flushInput()
 
 
 class UM7(object):
@@ -213,18 +209,15 @@ class UM7(object):
         t = time.time()
         while True:
             count += 1
-            try:
-                if self.serial.inWaiting() > 0:
-                    byte = self.serial.read(size=1)
-                    if byte == 's':
-                        byte2 = self.serial.read(size=1)
-                        if byte2 == 'n':
-                            byte3 = self.serial.read(size=1)
-                            if byte3 == 'p':
-                                foundpacket = 1
-                                break
-            except IOError:
-                break
+            if self.serial.inWaiting() > 0:
+                byte = self.serial.read(size=1)
+                if byte == 's':
+                    byte2 = self.serial.read(size=1)
+                    if byte2 == 'n':
+                        byte3 = self.serial.read(size=1)
+                        if byte3 == 'p':
+                            foundpacket = 1
+                            break
         if foundpacket == 0:
             hasdata = 0
             commandfailed = 0
