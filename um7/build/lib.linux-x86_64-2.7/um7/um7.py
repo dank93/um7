@@ -128,7 +128,8 @@ class UM7(object):
             self.statemask.update({i: float('NaN')})
         try:
             self.serial = serial.Serial(port, baudrate=baud, bytesize=8, parity='N', stopbits=1, timeout=0.1)  # Open serial device
-            self.serial.flushInput()
+            # self.serial = serial.Serial(port, baudrate=baud, bytesize=8, parity='N', stopbits=1, timeout=0)
+            # self.serial.flushInput()
             time.sleep(1)
             self.serial.write('$$$')
             print 'Successfully connected to %s UM7!' % self.name
@@ -218,6 +219,16 @@ class UM7(object):
                         if byte3 == 'p':
                             foundpacket = 1
                             break
+        # while True:
+        #     count += 1
+        #     byte = self.serial.read(size=1)
+        #     if byte == 's':
+        #         byte2 = self.serial.read(size=1)
+        #         if byte2 == 'n':
+        #             byte3 = self.serial.read(size=1)
+        #             if byte3 == 'p':
+        #                 foundpacket = 1
+        #                 break
         if foundpacket == 0:
             hasdata = 0
             commandfailed = 0
@@ -275,6 +286,7 @@ class UM7(object):
         :return: True or False based on success of request
         """
         print 'Zeroing ' + self.name + ' gyros...'
+        self.serial.write('F,1\n')
         self.request('zerogyros')
         timeout = time.time() + 0.5
         while time.time() < timeout:
@@ -294,6 +306,7 @@ class UM7(object):
         :return: True or False based on success of request
         """
         print 'Resetting ' + self.name + ' EFK...'
+        self.serial.write('F,1\n')
         self.request('resetekf')
         timeout = time.time() + 0.5
         while time.time() < timeout:
@@ -308,7 +321,9 @@ class UM7(object):
         return False
 
     def btstart(self):
-        self.serial.write('F,1\n')
+        self.serial.flushInput()
+        while not self.serial.inWaiting():
+            self.serial.write('F,1\n')
 
     def updatestate(self, sample):
         sample.update({'time': time.time() - self.t0})

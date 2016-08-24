@@ -97,6 +97,7 @@ class UM7array(object):
     def checkbuffer(self, numbytes):
         for i in self.sensors:
             if i.serial.inWaiting() > numbytes:
+                print("flush")
                 i.serial.flushInput()
 
 
@@ -129,7 +130,6 @@ class UM7(object):
         try:
             self.serial = serial.Serial(port, baudrate=baud, bytesize=8, parity='N', stopbits=1, timeout=0.1)  # Open serial device
             self.serial.flushInput()
-            time.sleep(1)
             self.serial.write('$$$')
             print 'Successfully connected to %s UM7!' % self.name
         except OSError:
@@ -275,6 +275,7 @@ class UM7(object):
         :return: True or False based on success of request
         """
         print 'Zeroing ' + self.name + ' gyros...'
+        self.serial.write('F,1\n')
         self.request('zerogyros')
         timeout = time.time() + 0.5
         while time.time() < timeout:
@@ -294,6 +295,7 @@ class UM7(object):
         :return: True or False based on success of request
         """
         print 'Resetting ' + self.name + ' EFK...'
+        self.serial.write('F,1\n')
         self.request('resetekf')
         timeout = time.time() + 0.5
         while time.time() < timeout:
@@ -308,9 +310,13 @@ class UM7(object):
         return False
 
     def btstart(self):
-        self.serial.write('F,1\n')
-        foundpacket, ~, ~, ~, ~ = readpacket()
-        return foundpacket
+        self.serial.flushInput()
+        buff = 0
+        while not buff:
+            self.serial.write('F,1\n')
+            buff = self.serial.inWaiting()
+            print buff
+            time.sleep(0.1)
 
     def updatestate(self, sample):
         sample.update({'time': time.time() - self.t0})
