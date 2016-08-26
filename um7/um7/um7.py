@@ -85,7 +85,7 @@ class UM7array(object):
         self.state.update({'time': time.time() - self.t0})  # maybe mask other sensor states to avoid oversampling
         for i in self.sensors:                              # also it lets you take more accurate time measurements
             sensorstate = {k: v for k, v in i.state.items()}
-            sensorstate.pop('time')
+            sensorstate.pop(i.name + ' time')
             self.state.update(sensorstate)
 
     def updatehistory(self):
@@ -118,7 +118,7 @@ class UM7(object):
         :return: UM7 Object
         """
         statevars[:] = [name + ' ' + i for i in statevars]
-        statevars = ['time'] + statevars
+        statevars = [name + ' time'] + statevars
         self.name = name
         self.t0 = time.time()
         self.state = {}
@@ -169,10 +169,10 @@ class UM7(object):
                 newsample = parsedatabatch(data, startaddress, self.name)  # extract data
                 if newsample:  # If it works
                     sample.update(newsample)  # Update sample with new sample
-            if list(set(self.statevars)-set(sample.keys())) == ['time']:  # If we have a new data key for every
+            if list(set(self.statevars)-set(sample.keys())) == [self.name + ' time']:  # If we have a new data key for every
                                                                             # var in statevar minus 'time'
                 break  # Then we have all new data and can move on
-        if list(set(self.statevars) - set(sample.keys())) != ['time']:  # In case we timed out before we caught every var we want
+        if list(set(self.statevars) - set(sample.keys())) != [self.name + ' time']:  # In case we timed out before we caught every var we want
             print 'Missed some vars!'
         if sample:  # If we have any new data
             self.updatestate(sample)  # Update the sensor state
@@ -319,13 +319,18 @@ class UM7(object):
             time.sleep(0.1)
 
     def updatestate(self, sample):
-        sample.update({'time': time.time() - self.t0})
+        sample.update({self.name + ' time': time.time() - self.t0})
         todelete = list(set(sample.keys()).difference(self.state.keys()))
         for i in todelete:
             sample.pop(i)
         mask = {k: v for k, v in self.statemask.items()}
         mask.update(sample)
         self.state.update(mask)
+
+    def checkbuffer(self, numbytes):
+        if self.serial.inWaiting() > numbytes:
+            print("flush")
+            self.serial.flushInput()
 
 
 def parsedata(data, address, devicename):
