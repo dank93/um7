@@ -128,7 +128,7 @@ class UM7(object):
             self.state.update({i: float('NaN')})
             self.statemask.update({i: float('NaN')})
         try:
-            self.serial = serial.Serial(port, baudrate=baud, bytesize=8, parity='N', stopbits=1, timeout=0.1)  # Open serial device
+            self.serial = serial.Serial(port, baudrate=baud, bytesize=8, parity='N', stopbits=1, timeout=0)  # Open serial device
             self.serial.flushInput()
             self.serial.write('$$$')
             print 'Successfully connected to %s UM7!' % self.name
@@ -157,13 +157,16 @@ class UM7(object):
             return False
         sample = parsedatabatch(data, startaddress, self.name)
         if sample:
-            self.updatestate(sample)
+            copy = sample.copy()
+            self.updatestate(copy)
         return sample
 
     def catchallsamples(self, timeout):
         sample = {}  # Initialize empty dict for new samples
         t0 = time.time()  # Initialize timeout timer
         while time.time() - t0 < timeout:  # While elapsed time is less than timeout
+            foundpacket = 0
+            # if self.serial.inWaiting() > 500:
             [foundpacket, hasdata, startaddress, data, commandfailed] = self.readpacket()  # Read a packet
             if foundpacket:  # If you got one
                 newsample = parsedatabatch(data, startaddress, self.name)  # extract data
@@ -173,7 +176,8 @@ class UM7(object):
                                                                             # var in statevar minus 'time'
                 break  # Then we have all new data and can move on
         if list(set(self.statevars) - set(sample.keys())) != [self.name + ' time']:  # In case we timed out before we caught every var we want
-            print 'Missed some vars!'
+            print 'Missed some vars!', self.serial.inWaiting()
+            # return False
         if sample:  # If we have any new data
             self.updatestate(sample)  # Update the sensor state
         return sample  # Return the sample
@@ -209,7 +213,7 @@ class UM7(object):
         t = time.time()
         while True:
             count += 1
-            if self.serial.inWaiting() > 0:
+            if self.serial.inWaiting() > 100:
                 byte = self.serial.read(size=1)
                 if byte == 's':
                     byte2 = self.serial.read(size=1)
