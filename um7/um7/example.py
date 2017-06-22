@@ -1,25 +1,23 @@
-from um7 import UM7
+from um7 import UM7array
 
 name1 = 'sensor1'
 name2 = 'sensor2'
-port1 = '/dev/tty.RNBT-8C0B-RNI-SPP'
-port2 = '/dev/tty.RNBT-E341-RNI-SPP'
-# port = '/dev/tty.usbserial-A903AAV1'
+port1 = '/dev/tty.usbserial-A903AAV3'
 
-# sensor1 = UM7(name1, port1)
-sensor2 = UM7(name2, port2)
-# sensors = [sensor1, sensor2]
-# sensors = [sensor1]
-sensors = [sensor2]
-for i in sensors:
-    i.zerogyros()
-    i.resetekf()
-    i.settimer()
+# names = [name1, name2]
+# ports = [port1, port2]
+names = [name1]
+ports = [port1]
+measurements = ['xaccel', 'roll', 'pitch', 'yaw']
+
+sensor_array = UM7array(names, ports, measurements, baud=115200)
+sensor_array.btstart() #include if using 2n-42 bluetooth module
+sensor_array.settimer()
 
 while True:
-    # sensor.grabsample(['xaccel', 'yaccel', 'zaccel', 'xgyro', 'rollpitch', 'yaw'])
-    for i in sensors:
-        i.catchsample()
-        print i.state
+    sensor_array.catchsample()
+    print sensor_array.state
 
-
+# UM7array.btstart() puts bt module into fast module
+# settimer resets the timestamps
+# variables given 'nan' value to if there is no new value (better than repeating)

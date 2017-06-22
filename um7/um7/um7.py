@@ -319,7 +319,6 @@ class UM7(object):
         while not buff:
             self.serial.write('F,1\n')
             buff = self.serial.inWaiting()
-            print buff
             time.sleep(0.1)
 
     def updatestate(self, sample):
