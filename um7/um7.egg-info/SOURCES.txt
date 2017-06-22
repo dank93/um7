@@ -2,6 +2,7 @@ README.txt
 setup.py
 um7/__init__.py
 um7/example.py
+um7/example2.py
 um7/um7.py
 um7.egg-info/PKG-INFO
 um7.egg-info/SOURCES.txt

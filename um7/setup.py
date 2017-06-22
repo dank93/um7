@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(name='um7',
-      version='0.9',
+      version='0.11',
       description='Classes to interface with CH Robotics UM7 IMU',
-      url='https://pypi.python.org/pypi/um7/0.9',
+      url='https://pypi.python.org/pypi/um7/0.11',
       author='Daniel Kurek',
       author_email='dkurek93@gmail.com',
       license='MIT',
